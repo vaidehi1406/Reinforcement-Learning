@@ -1,0 +1,51 @@
+import numpy as np
+
+# Define the environment
+n_states = 5  # Number of states (locations in the grid)
+n_actions = 4  # Number of possible actions (up, down, left, right)
+n_episodes = 1000  # Number of episodes for training
+
+# Initialize Q-table with zeros
+Q = np.zeros((n_states, n_actions))
+
+# Set hyperparameters
+learning_rate = 0.1
+discount_factor = 0.9
+exploration_prob = 0.2  # Epsilon-greedy exploration strategy
+
+# Define the reward matrix
+# For simplicity, this is a basic matrix with rewards for reaching the goal and penalties for hitting obstacles
+R = np.array([
+    [-1, -1, -1, -1, 0],  # Rewards for each state
+    [-1, -1, -1, 0, -1],
+    [-1, -1, 0, -1, -1],
+    [-1, 0, -1, -1, -1],
+    [0, -1, -1, -1, 1]    # Goal state with reward 1
+])
+
+# Q-learning algorithm
+for episode in range(n_episodes):
+    state = np.random.randint(0, n_states)  # Initial state
+    done = False
+
+    while not done:
+        # Epsilon-greedy exploration strategy
+        if np.random.rand() < exploration_prob:
+            action = np.random.randint(0, n_actions)  # Explore
+        else:
+            action = np.argmax(Q[state, :])  # Exploit
+
+        next_state = action  # In this simple example, the next state is the chosen action
+        reward = R[state, action]
+
+        # Q-value update using the Bellman equation
+        Q[state, action] += learning_rate * (reward + discount_factor * np.max(Q[next_state, :]) - Q[state, action])
+
+        state = next_state
+
+        # Check if the episode is done (reached the goal or hit an obstacle)
+        done = (state == n_states - 1) or (state == 3)  # Goal or obstacle reached
+
+# Print the learned Q-table
+print("Learned Q-table:")
+print(Q)
